@@ -16,15 +16,19 @@ mkdir $problem_name
 
 # Create the problem file
 touch $problem_name/problem.md
-echo "## Problem Details\n\nFill in the problem details here." >> $problem_name/problem.md
+echo "## Problem Details" > $problem_name/problem.md
+echo "Fill in the problem details here." >> $problem_name/problem.md
+
 touch $problem_name/notes.md
-echo "## Notes\n\nFill in the notes here." >> $problem_name/notes.md
+echo "## Notes" > $problem_name/notes.md
+echo "Fill in the notes here." >> $problem_name/notes.md
 
 # Create the Go Project
 cd $problem_name
 go mod init github.com/$github_username/$github_project/$problem_name
 
 touch main.go
-echo "package main\n" >> main.go
+echo "package main" > main.go
+
 
 touch input.txt
