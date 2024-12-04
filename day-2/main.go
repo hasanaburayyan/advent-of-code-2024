@@ -12,49 +12,15 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Printf("Part one answer: %d\n", partOneSolution(input, 0))
-	fmt.Printf("Part two answer: %d\n", partOneSolution(input, 1))
+	fmt.Printf("Part one answer: %d\n", solve(input, false))
+	fmt.Printf("Part two answer: %d\n", solve(input, true))
 }
 
-type OrderFunc func([]int, int, int) bool
-
-func partOneSolution(input ProblemInput, faultTolerance int) int {
-
-	var orderCheck OrderFunc
-
+func solve(input ProblemInput, faultTolerable bool) int {
 	sum := 0
 
 	for _, row := range input.Matrix {
-		if isAscending(row, 0, 1) {
-			orderCheck = isAscending
-		} else {
-			orderCheck = isDescending
-		}
-
-		safe := true
-		rowFaultTolerance := faultTolerance
-		for i := 0; i < len(row)-1; i++ {
-			if !isSafe(row, i, i+1, orderCheck) {
-				// use fault tolerance if any
-				if rowFaultTolerance > 0 {
-					rowFaultTolerance--
-					continue
-				}
-				safe = false
-				break
-			}
-		}
-
-		// check last elements
-		if !orderCheck(row, len(row)-2, len(row)-1) {
-			if rowFaultTolerance > 0 {
-				safe = true
-			} else {
-				safe = false
-			}
-		}
-
-		if safe {
+		if isRowSafe(row, row[0] < row[1], faultTolerable) {
 			sum++
 		}
 	}
@@ -62,38 +28,23 @@ func partOneSolution(input ProblemInput, faultTolerance int) int {
 	return sum
 }
 
-// func checkRow(row []int, checkOrder OrderFunc) bool {
-// 	if !checkOrder(row[0], row[1]) {
-// 		return false
-// 	}
-// }
+func isRowSafe(row []int, ascending bool, canFail bool) bool {
+	if len(row) <= 1 {
+		return true
+	}
 
-func isSafe(row []int, i int, j int, orderCheck OrderFunc) bool {
-	if !orderCheck(row, i, j) {
+	diff := math.Abs(float64(row[0] - row[1]))
+	correctOrder := (row[0] < row[1]) == ascending
+
+	if diff > 3 || diff == 0 || !correctOrder {
+		if canFail {
+			tmpRow := make([]int, len(row))
+			copy(tmpRow, row)
+			tmpRow[1] = tmpRow[0]
+			return isRowSafe(row[1:], ascending, false) || isRowSafe(tmpRow[1:], ascending, false)
+		}
 		return false
 	}
 
-	diff := math.Abs(float64(row[i] - row[j]))
-
-	return diff <= 3 && diff > 0
-}
-
-func isAscending(row []int, i int, j int) bool {
-	if j >= len(row) {
-		return true
-	}
-
-	if row[i] <= row[j] {
-		return true
-	}
-
-	return false
-}
-
-func isDescending(row []int, i int, j int) bool {
-	if j >= len(row) {
-		return true
-	}
-
-	return !isAscending(row, i, j)
+	return isRowSafe(row[1:], ascending, canFail)
 }
