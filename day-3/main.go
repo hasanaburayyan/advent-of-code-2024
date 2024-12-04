@@ -19,17 +19,15 @@ func main() {
 }
 
 func solveProblemOne(input string) int {
-	re := regexp.MustCompile(`mul\(((-)?[0-9]+\,((-)?[0-9]+))\)`)
-	matches := re.FindAll([]byte(input), -1)
+	re := regexp.MustCompile(`mul\((([0-9]+)\,(([0-9])+))\)`)
+	matches := re.FindAllStringSubmatch(input, -1)
 
 	sum := 0
 
 	for _, match := range matches {
-		numString := strings.Split(string(match[4:len(match)-1]), ",")
-
-		left, _ := strconv.Atoi(numString[0])
-		right, _ := strconv.Atoi(numString[1])
-		sum += right * left
+		left, _ := strconv.Atoi(match[2])
+		right, _ := strconv.Atoi(match[3])
+		sum += left * right
 	}
 
 	return sum
